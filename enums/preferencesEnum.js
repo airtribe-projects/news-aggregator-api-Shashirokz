@@ -1,4 +1,4 @@
-const preference = Object.freeze({
+const Preference = Object.freeze({
   Business: "business",
   Entertainment: "entertainment",
   General: "general",
@@ -8,4 +8,4 @@ const preference = Object.freeze({
   Technology: "technology"
 });
 
-module.exports = preference;
+module.exports = Preference;

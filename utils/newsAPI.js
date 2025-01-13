@@ -9,6 +9,16 @@ const NEWS_URL = process.env.NEWS_URL;
 const fetchNews = async (preference = '') => {
   const cacheKey = preference || 'general';
 
+  if (!process.env.NEWS_API_KEY) {
+    console.error('Server error: NEWS_API_KEY is not defined!');
+    process.exit(1);
+  }
+
+  if (!process.env.NEWS_URL) {
+    console.error('Server error: NEWS_URL is not defined!');
+    process.exit(1);
+  }
+
   const cachedArticles = cache.get(cacheKey);
   if (cachedArticles) {
     console.log('Returning cached articles');
@@ -29,11 +39,10 @@ const fetchNews = async (preference = '') => {
 
     cache.set(cacheKey, response.data.articles);
 
-    console.log('Returning fresh articles');
     return response.data.articles;
   } catch (error) {
     console.error('Error fetching news articles:', error.message);
-    throw new Error('Unable to fetch news articles');
+    throw new Error('Unable to fetch news articles. Error: ${error.message}`');
   }
 };
 

@@ -49,10 +49,15 @@ const loginUser = async (req, res) => {
       return res.status(400).json({ message: 'Invalid credentials.' });
     }
 
+    if (!process.env.JWT_SECRET) {
+      console.error('Server error: JWT_SECRET is not defined!');
+      process.exit(1);
+    }
+
     const token = jwt.sign(
-      { role: user.role, email: user.email, id: user._id.toString() },
+      { id: user._id.toString() },
       process.env.JWT_SECRET,
-      { expiresIn: '1h' }
+      { expiresIn: '1h', algorithm: 'HS256' }
     );
 
     res.json({ message: 'Login successful.', id: user._id.toString(), token });

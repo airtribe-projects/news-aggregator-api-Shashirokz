@@ -12,6 +12,14 @@ const getArticles = async (req, res) => {
 
 		const articles = await fetchNews(preference);
 
+		for (const article of articles) {
+			try {
+				await saveArticle(article, user._id);
+			} catch (error) {
+				console.error(`Error saving article with title ${article.title}:`, error.message);
+			}
+		}
+
 		await Promise.all(
 			articles.map(async (article) => {
 				await saveArticle(article, user._id);
@@ -27,6 +35,10 @@ const getArticles = async (req, res) => {
 const setArticleAsRead = async (req, res) => {
 	try {
 		const articleId = req.params.id;
+
+		if (!articleId) {
+			return res.status(400).json({ message: 'Article ID is required.' });
+		}
 
 		const article = await Article.findById(articleId);
 		if (!article) {
@@ -46,6 +58,10 @@ const setArticleAsRead = async (req, res) => {
 const setArticleAsFavorite = async (req, res) => {
 	try {
 		const articleId = req.params.id;
+
+		if (!articleId) {
+			return res.status(400).json({ message: 'Article ID is required.' });
+		}
 
 		const article = await Article.findById(articleId);
 		if (!article) {
@@ -84,7 +100,17 @@ const getFavoriteArticles = async (req, res) => {
 
 const searchArticles = async (req, res) => {
 	try {
-		const keyword = req.params.keyword;
+		let keyword = req.params.keyword;
+
+		if (!keyword || keyword.trim().length === 0) {
+			return res.status(400).json({ message: 'Keyword is required and cannot be empty.' });
+		}
+
+		if (keyword.length < 3 || keyword.length > 100) {
+			return res.status(400).json({ message: 'Keyword must be between 3 and 100 characters long.' });
+		}
+		// Only allow alphanumeric characters and spaces
+		keyword = keyword.replace(/[^\w\s]/gi, '');
 
 		const articles = await Article.find({
 			$text: { $search: keyword }

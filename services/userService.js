@@ -5,7 +5,7 @@ const getUserById = async (userId) => {
 		const user = await User.findById(userId).select('-password');
 		return user;
 	} catch (error) {
-		throw new Error('Error fetching user');
+		throw new Error('Error fetching user: ' + error.message);
 	}
 };
 

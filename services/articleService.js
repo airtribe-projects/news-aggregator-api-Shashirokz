@@ -24,7 +24,8 @@ const saveArticle = async (articleData, userId) => {
 
 		return await newArticle.save();
 	} catch (error) {
-		throw new Error('Error saving article: ' + error.message);
+		console.error('Error details:', error);
+		throw new Error('Error saving article: An unexpected error occurred. ' + error.message);
 	}
 };
 

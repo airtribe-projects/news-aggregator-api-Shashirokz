@@ -1,8 +1,11 @@
 const jwt = require('jsonwebtoken');
 
 const protect = (req, res, next) => {
-    const token = req.header('Authorization')?.replace('Bearer ', '');
+    if (!process.env.JWT_SECRET) {
+        return res.status(500).json({ message: 'Server error: JWT secret is not defined.' });
+    }
 
+    const token = req.header('Authorization')?.match(/^Bearer\s(\S+)$/)?.[1];
     if (!token) {
         return res.status(401).json({ message: 'No token, authorization denied.' });
     }
@@ -12,6 +15,7 @@ const protect = (req, res, next) => {
         req.user = decoded;
         next();
     } catch (err) {
+        console.error('Token verification error:', err.message);
         res.status(401).json({ message: 'Token is not valid.' });
     }
 };
